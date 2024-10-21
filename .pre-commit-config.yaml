@@ -1,0 +1,32 @@
+# pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace  # Удаляет пробелы в конце строк
+      - id: end-of-file-fixer  # Проверяет наличие пустой строки в конце файла
+      - id: check-yaml  # Проверяет синтаксис YAML-файлов
+      - id: check-json  # Проверяет синтаксис JSON-файлов
+      - id: check-merge-conflict  # Проверяет наличие остатков конфликтов слияния
+      - id: check-added-large-files  # Проверяет добавление крупных файлов
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black  # Автоматическое форматирование кода с помощью Black
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8  # Проверка стиля и качества кода
+        additional_dependencies: ["flake8-bugbear", "flake8-import-order"]  # Опционально: расширение проверок
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort  # Сортировка импортов
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.29.1
+    hooks:
+      - id: commitizen  # Проверка соответствия сообщений коммитов
