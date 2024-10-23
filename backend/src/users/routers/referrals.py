@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import crud
 from src.crud import get_referrals_by_referrer_id
@@ -19,7 +19,7 @@ router = APIRouter()
 )
 async def create_referral_code(
     expiry_days: int,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: UserModel = Depends(get_current_user),
 ):
     """Создает реферальный код пользователю. Доступен авторизованному пользователю."""
@@ -40,7 +40,8 @@ async def create_referral_code(
     summary="Удалить уже имеющийся реферальный код.",
 )
 async def delete_referral_code(
-    db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user),
 ):
     """Функция удаляет реферальный код. Доступен авторизованному пользователю"""
 
@@ -52,11 +53,11 @@ async def delete_referral_code(
     response_model=list[UserSchema],
     summary="Получение 	информации о рефералах по referrer_code.",
 )
-async def get_referrals(referrer_id: str, db: Session = Depends(get_db)):
+async def get_referrals(referrer_id: str, db: AsyncSession = Depends(get_db)):
     referrals = await get_referrals_by_referrer_id(db, referrer_id)
 
     if not referrals:
         raise HTTPException(
             status_code=404, detail="No referrals found for this referrer ID"
         )
-    return await referrals
+    return referrals

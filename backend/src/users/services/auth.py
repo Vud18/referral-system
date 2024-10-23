@@ -4,7 +4,9 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from starlette import status
 
 from src.database import get_db
@@ -39,10 +41,11 @@ async def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def authenticate_user(db: Session, username: str, password: str):
+async def authenticate_user(db: AsyncSession, username: str, password: str):
     """Функция для проверки учетных данных пользователей"""
 
-    user = await db.query(UserModel).filter(UserModel.username == username).first()
+    result = await db.execute(select(UserModel).where(UserModel.username == username))
+    user = result.scalars().first()
 
     if not user:
         return None
@@ -52,7 +55,7 @@ async def authenticate_user(db: Session, username: str, password: str):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ):
     """Функция используется для извлечения текущего
     аутентифицированного пользователя на основе JWT токена"""
@@ -71,7 +74,8 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    current_user = await db.query(UserModel).filter(UserModel.email == username).first()
+    result = await db.execute(select(UserModel).where(UserModel.email == username))
+    current_user = result.scalars().first()
 
     if current_user is None:
         raise credentials_exception

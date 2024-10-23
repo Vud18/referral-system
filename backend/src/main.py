@@ -1,10 +1,7 @@
 from fastapi import FastAPI
 from starlette.responses import HTMLResponse
 
-from src.database import Base, engine
 from src.users.routers import referrals, users
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 

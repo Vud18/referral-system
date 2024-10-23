@@ -2,52 +2,54 @@ import uuid
 from datetime import datetime, timedelta
 
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.users import schemas
 from src.users.models import ReferralCode, UserModel
 
 
-async def get_user_by_email(db: Session, email: str):
-    return await db.query(UserModel).filter(UserModel.email == email).first()
+async def get_user_by_email(db: AsyncSession, email: str):
+    result = await db.execute(select(UserModel).where(UserModel.email == email))
+    return result.scalars().first()
 
 
-async def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
+async def create_user(db: AsyncSession, user: schemas.UserCreate, hashed_password: str):
     """Функция создает пользователя в базе данных.
     Если не указан реферер код, то создает без него."""
 
-    db_user = await UserModel(
+    db_user = UserModel(
+        id=str(uuid.uuid4()),
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
+        referrer_code=user.referrer_code if user.referrer_code != "string" else None,
     )
 
-    if user.referrer_code != "string":
-        db_user = await UserModel(
-            username=user.username,
-            email=user.email,
-            hashed_password=hashed_password,
-            referrer_code=user.referrer_code,
-        )
-
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+
+    try:
+        await db.commit()
+        await db.refresh(db_user)
+    except Exception as e:
+        await db.rollback()  # Откатываем транзакцию в случае ошибки
+        print(f"Error while creating user: {e}")
+        raise e
+
     return db_user
 
 
-async def create_referral_code(db: Session, user_id: int, expiry_days: int):
+async def create_referral_code(db: AsyncSession, user_id: int, expiry_days: int):
     """Функция создает реферальный код"""
 
-    existing_code = (
-        await db.query(ReferralCode)
-        .filter(
+    existing_code = await db.execute(
+        select(ReferralCode).where(
             ReferralCode.user_id == user_id,
             ReferralCode.is_active == True,
             ReferralCode.expiry_date > datetime.utcnow(),
         )
-        .first()
     )
+    existing_code = existing_code.scalars().first()
 
     if existing_code:
         raise HTTPException(
@@ -56,7 +58,7 @@ async def create_referral_code(db: Session, user_id: int, expiry_days: int):
 
     expiry_date = datetime.utcnow() + timedelta(days=expiry_days)
 
-    new_code = await ReferralCode(
+    new_code = ReferralCode(
         code=str(uuid.uuid4()),
         expiry_date=expiry_date,
         user_id=user_id,
@@ -64,34 +66,41 @@ async def create_referral_code(db: Session, user_id: int, expiry_days: int):
     )
 
     db.add(new_code)
-    db.commit()
-    db.refresh(new_code)
+    await db.commit()
+    await db.refresh(new_code)
 
     return new_code
 
 
 async def delete_referral_code(
-    db: Session,
+    db: AsyncSession,
     user_id: int,
 ):
     """Функция удаляет реферальный код, если такой имеется."""
 
-    referral_code = (
-        await db.query(ReferralCode)
-        .filter(ReferralCode.user_id == user_id, ReferralCode.is_active == True)
-        .first()
+    result = await db.execute(
+        select(ReferralCode).where(
+            ReferralCode.user_id == user_id, ReferralCode.is_active == True
+        )
     )
+    referral_code = result.scalars().first()
 
     if not referral_code:
         raise HTTPException(status_code=404, detail="No active referral code found")
 
     # Деактивировать код
     referral_code.is_active = False
-    db.commit()
+    await db.commit()
+
     return referral_code
 
 
-async def get_referrals_by_referrer_id(db: Session, referrer_id: str):
+async def get_referrals_by_referrer_id(db: AsyncSession, referrer_id: str):
     """Возвращает всех пользователей которые зарегистрировались по referrer_code"""
 
-    return db.query(UserModel).filter(UserModel.referrer_code == referrer_id).all()
+    result = await db.execute(
+        select(UserModel).where(UserModel.referrer_code == referrer_id)
+    )
+    referrals = result.scalars().all()
+
+    return referrals
