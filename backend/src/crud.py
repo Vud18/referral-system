@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+
 from src.users import schemas
 from src.users.models import ReferralCode, UserModel
 

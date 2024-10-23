@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from src import crud
 from src.crud import get_referrals_by_referrer_id
 from src.database import get_db

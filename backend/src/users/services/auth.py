@@ -5,9 +5,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from starlette import status
+
 from src.database import get_db
 from src.users.models import UserModel
-from starlette import status
 
 SECRET_KEY = "secret-key"
 ALGORITHM = "HS256"
