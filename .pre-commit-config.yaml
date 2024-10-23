@@ -15,13 +15,6 @@ repos:
     hooks:
       - id: black  # Автоматическое форматирование кода с помощью Black
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8  # Проверка стиля и качества кода
-        additional_dependencies: ["flake8-bugbear", "flake8-import-order"]  # Опционально: расширение проверок
-        args: ["--ignore=F401"]
-
   - repo: https://github.com/pre-commit/mirrors-isort
     rev: v5.10.1
     hooks:
