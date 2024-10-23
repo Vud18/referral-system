@@ -6,7 +6,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from starlette import status
 
 from src.database import get_db
