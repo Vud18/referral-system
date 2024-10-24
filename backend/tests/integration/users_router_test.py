@@ -61,7 +61,7 @@ class TestAuthRouter(BaseTestRouter):
         )
 
         token = response.json()
-        print(1111111111111111111111111111111111, token, user.username, user.password)
+
         assert response.status_code == 200
 
 
