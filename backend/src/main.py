@@ -6,8 +6,8 @@ from src.users.routers import referrals, users
 app = FastAPI()
 
 # Подключение маршрутов
-app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
-app.include_router(referrals.router, prefix="/api/v1/referrals", tags=["referrals"])
+app.include_router(users.auth_router, prefix="/api/v1/users", tags=["users"])
+app.include_router(referrals.referral_router, prefix="/api/v1/referrals", tags=["referrals"])
 
 
 @app.get(
