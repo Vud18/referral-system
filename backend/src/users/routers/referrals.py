@@ -9,10 +9,10 @@ from src.users.models import UserModel
 from src.users.schemas import UserSchema
 from src.users.services.auth import get_current_user
 
-router = APIRouter()
+referral_router = APIRouter()
 
 
-@router.post(
+@referral_router.post(
     "/referral/create",
     response_model=schemas.ReferralCode,
     summary="Создать реферальный код.",
@@ -34,7 +34,7 @@ async def create_referral_code(
     )
 
 
-@router.delete(
+@referral_router.delete(
     "/referral/delete",
     response_model=schemas.ReferralCode,
     summary="Удалить уже имеющийся реферальный код.",
@@ -48,7 +48,7 @@ async def delete_referral_code(
     return await crud.delete_referral_code(db, user_id=current_user.id)
 
 
-@router.get(
+@referral_router.get(
     "/referrals/{referrer_code}",
     response_model=list[UserSchema],
     summary="Получение 	информации о рефералах по referrer_code.",
