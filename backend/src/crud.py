@@ -98,9 +98,18 @@ async def delete_referral_code(
 async def get_referrals_by_referrer_id(db: AsyncSession, referrer_id: str):
     """Возвращает всех пользователей которые зарегистрировались по referrer_code"""
 
-    result = await db.execute(
-        select(UserModel).where(UserModel.referrer_code == referrer_id)
+    # Подзапрос для получения реферального кода реферера
+    referral_code_subquery = (
+        select(ReferralCode.code)
+        .where(ReferralCode.user_id == referrer_id)
+        .scalar_subquery()
     )
+
+    # Основной запрос для получения пользователей, которые указали данный реферальный код
+    result = await db.execute(
+        select(UserModel).where(UserModel.referrer_code == referral_code_subquery)
+    )
+
     referrals = result.scalars().all()
 
     return referrals
