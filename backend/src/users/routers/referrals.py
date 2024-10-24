@@ -51,7 +51,7 @@ async def delete_referral_code(
 @referral_router.get(
     "/referrals/{referrer_code}",
     response_model=list[UserSchema],
-    summary="Получение 	информации о рефералах по referrer_code.",
+    summary="Получение 	информации о рефералах по ID реферера.",
 )
 async def get_referrals(referrer_id: str, db: AsyncSession = Depends(get_db)):
     referrals = await get_referrals_by_referrer_id(db, referrer_id)
