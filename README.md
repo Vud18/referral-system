@@ -17,6 +17,7 @@
 - **SQLite** - база данных для хранения данных
 - **SQLAlchemy** - ORM для работы с базой данных
 - **JWT** - аутентификация и авторизация
+- **Pytest** - тестирование
 
 ## Установка и запуск
 
@@ -37,13 +38,13 @@ venv\Scripts\activate  # Windows
 ```bash
 pip install poetry
 ```
-4. Установите зависимости
-```bash
-poetry install
-```
-5. Перейдите в директорию `/backend`:
+4. Перейдите в директорию `/backend`:
 ```bash
 cd backend
+```
+5. Установите зависимости
+```bash
+poetry install
 ```
 6. Настройка базы данных(миграции)
 ```bash
@@ -52,4 +53,15 @@ alembic upgrade head
 7. Запуск приложения
 ```bash
 uvicorn src.main:app --reload
+```
+8. Локальный адрес:
+```bash
+http://127.0.0.1:8000/docs
+```
+
+## Тестирование
+
+1. Запуск тестов делаем из \referral-system
+```bash
+pytest
 ```
