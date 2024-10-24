@@ -1,19 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from src import crud
 from src.database import get_db
 from src.users import schemas
+from src.users.schemas import Login
 from src.users.services import auth
 
-router = APIRouter()
+auth_router = APIRouter()
 
 
-@router.post(
+@auth_router.post(
     "/register",
     response_model=schemas.Token,
     summary="Регистрация нового пользователя.",
+    status_code=status.HTTP_201_CREATED,
 )
 async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     """Регистрация нового пользователя."""
@@ -30,13 +33,13 @@ async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db))
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post(
+@auth_router.post(
     "/login",
     response_model=schemas.Token,
     summary="Получить токен.",
 )
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
+    form_data: Login, db: AsyncSession = Depends(get_db)
 ):
     """Возвращает токен пользователя."""
 
