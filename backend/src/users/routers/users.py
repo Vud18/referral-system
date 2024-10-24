@@ -38,9 +38,7 @@ async def register(user: schemas.UserCreate, db: AsyncSession = Depends(get_db))
     response_model=schemas.Token,
     summary="Получить токен.",
 )
-async def login_for_access_token(
-    form_data: Login, db: AsyncSession = Depends(get_db)
-):
+async def login_for_access_token(form_data: Login, db: AsyncSession = Depends(get_db)):
     """Возвращает токен пользователя."""
 
     user = await auth.authenticate_user(db, form_data.username, form_data.password)

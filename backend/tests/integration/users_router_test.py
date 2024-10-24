@@ -17,10 +17,7 @@ class TestAuthRouter(BaseTestRouter):
     async def user(self) -> UserCreate:
         """Данные пользователя для тестов регистрации и логина."""
         return UserCreate(
-            username="string",
-            email="string",
-            password="string",
-            referrer_code="string"
+            username="string", email="string", password="string", referrer_code="string"
         )
 
     # MARK: POST
@@ -32,8 +29,8 @@ class TestAuthRouter(BaseTestRouter):
                 "username": faker.user_name(),
                 "email": faker.email(),
                 "password": faker.password(),
-                "referrer_code": "string"
-            }
+                "referrer_code": "string",
+            },
         )
         assert response.status_code == 201
 
@@ -46,24 +43,20 @@ class TestAuthRouter(BaseTestRouter):
                 "username": "string",
                 "email": "string",
                 "password": "string",
-                "referrer_code": "string"
-            }
+                "referrer_code": "string",
+            },
         )
 
         assert response.status_code == 201
 
         response = await router_client.post(
             "/login",
-            json={
-                'username': user.username,
-                "password": user.password
-            },
+            json={"username": user.username, "password": user.password},
         )
 
         token = response.json()
 
         assert response.status_code == 200
-
 
         assert token["access_token"] is not None
         assert token["token_type"] == "bearer"
